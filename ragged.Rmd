@@ -1,0 +1,143 @@
+---
+title: "ragged experiment demos"
+author: "Vincent J. Carey, stvjc at channing.harvard.edu"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{ragged experiment demos}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    highlight: pygments
+    number_sections: yes
+    theme: united
+    toc: yes
+---
+```{r getpks,echo=FALSE, results="hide"}
+suppressPackageStartupMessages({
+suppressMessages({
+library(curatedTCGAData)
+library(BiocParallel)
+library(survival)
+})
+})
+```
+
+# Enumerate mutations by symbol in BRCA, couple to overall survival
+
+```{r cache=TRUE}
+suppressPackageStartupMessages({
+suppressMessages({
+library(curatedTCGAData)
+library(BiocParallel)
+library(survival)
+})
+})
+
+register(MulticoreParam(4))
+suppressMessages({
+bmut = curatedTCGAData("BRCA", "Mutation", dry.run=FALSE, version="2.0.1")
+})
+
+# set up survival time
+cd = colData(bmut)
+cd = cd[which(!is.na(bmut$OS.Time)),]
+library(survival)
+osurv = Surv(cd$OS.Time/365.25, cd$OS.event)
+
+bmuts = experiments(bmut)[[1]]
+bmut.srv = bmuts[, which(!is.na(bmut$OS.Time))]
+
+bmsym = assay(bmut.srv)  # first is Hugo
+
+system.time(mutsyms <- bplapply(1:ncol(bmsym), 
+   function(x) as.character(na.omit(bmsym[,x]))))
+system.time(multimuts <- bplapply(1:ncol(bmsym), 
+   function(x) sum(duplicated(as.character(na.omit(bmsym[,x]))))))
+```
+
+```{r lksurv}
+plot(survfit(osurv~1))
+```
+
+The display, based on 793 observations with non-missing
+TCGA OS.Time, is consistent with the display at the [GDC Data Portal](https://portal.gdc.cancer.gov/exploration?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22content%22%3A%7B%22field%22%3A%22cases.diagnoses.tissue_or_organ_of_origin%22%2C%22value%22%3A%5B%22axillary%20tail%20of%20breast%22%2C%22breast%2C%20nos%22%2C%22central%20portion%20of%20breast%22%2C%22lower-inner%20quadrant%20of%20breast%22%2C%22lower-outer%20quadrant%20of%20breast%22%2C%22nipple%22%2C%22overlapping%20lesion%20of%20breast%22%2C%22upper-inner%20quadrant%20of%20breast%22%2C%22upper-outer%20quadrant%20of%20breast%22%5D%7D%2C%22op%22%3A%22in%22%7D%2C%7B%22content%22%3A%7B%22field%22%3A%22cases.primary_site%22%2C%22value%22%3A%5B%22breast%22%5D%7D%2C%22op%22%3A%22in%22%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.project.program.name%22%2C%22value%22%3A%5B%22TCGA%22%5D%7D%7D%5D%7D&searchTableTab=genes), based on 1077 cases.
+
+# Obtain gene-stratified survival
+
+```{r dogs}
+gstrat = function(sym="TTN", mutlist, survdat) {
+ stopifnot(inherits(survdat, "Surv"))
+ stopifnot(length(survdat) == length(mutlist))
+ hassym = sapply(mutlist, function(x) sym %in% x)
+ plot(survfit(survdat~hassym), main=sym, lty=1:2, xlab="Years")
+}
+gstrat("TTN", mutsyms, osurv)
+gstrat("TP53", mutsyms, osurv)
+```
+
+# Frequencies
+
+```{r dofr}
+commut = tail(sort(table(unlist(mutsyms))), 30)
+commut
+```
+
+```{r lkhist}
+hist(log(sapply(mutsyms,length)), main="Log mutation count per tumor")
+```
+ 
+# Combinations of mutations
+
+```{r lkco}
+hasmut = function(sym="TP53", mutlist) {
+ sapply(mutlist, function(x) sym %in% x)
+}
+table( hasmut("TP53", mutsyms), hasmut("PIK3CA", mutsyms) )
+```
+
+Assemble pairs
+```{r lkmpairs}
+common_pairs = combn(names(commut),2)
+common_pairs[,1:4]
+```
+
+# Greedy search for deleterious pairs
+
+```{r lkpairs}
+indicate_pair = function(sym1, sym2, mutlist)
+ hasmut(sym1, mutlist) & hasmut(sym2, mutlist)
+chk = apply(common_pairs,2,function(z) indicate_pair(z[1], z[2], mutsyms))
+chkp.inds = which(apply(chk,2,sum)>20) # disallow very rare combos
+dim(chk)
+dim(chk[,chkp.inds])
+chisqs = apply(chk[,chkp.inds],2,function(z)survdiff(osurv~z)$chisq)
+hist(chisqs)
+cpr = common_pairs[,chkp.inds][, which(chisqs>5)]
+plot(survfit(osurv~chk[,chkp.inds[which(chisqs>5)]]), lty=1:2, main=paste(cpr, collapse=" & " ))
+```
+
+# Using domain classification of mutations
+
+```{r lkdom, cache=TRUE}
+dom = assay(bmut.srv, 47)  # domain_WU
+length(grep("Znf", na.omit(as.character(dom)))) # frequently noted
+system.time(mutdoms <- bplapply(1:ncol(dom), 
+   function(x) as.character(na.omit(dom[,x]))))
+```
+
+Isolate individuals with mutations annotated to Znf domain
+
+```{r noz}
+noz = sapply(mutdoms, function(x) length(grep("Znf", x))==0)
+table(noz)
+survdiff(osurv~noz)
+```
+
+SH3
+
+```{r nosh}
+nosh3 = sapply(mutdoms, function(x) length(grep("SH3", x))==0)
+survdiff(osurv~nosh3)
+```
+
