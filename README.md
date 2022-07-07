@@ -1,0 +1,2 @@
+# raggedchk
+exploration of RaggedExperiment
