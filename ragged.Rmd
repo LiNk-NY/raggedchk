@@ -13,47 +13,47 @@ output:
     theme: united
     toc: yes
 ---
+
 ```{r getpks,echo=FALSE, results="hide"}
 suppressPackageStartupMessages({
-suppressMessages({
-library(curatedTCGAData)
-library(BiocParallel)
-library(survival)
-})
+  library(curatedTCGAData)
+  library(BiocParallel)
+  library(survival)
 })
 ```
 
 # Enumerate mutations by symbol in BRCA, couple to overall survival
 
 ```{r cache=TRUE}
-suppressPackageStartupMessages({
-suppressMessages({
-library(curatedTCGAData)
-library(BiocParallel)
-library(survival)
-})
-})
-
 register(MulticoreParam(4))
 suppressMessages({
 bmut = curatedTCGAData("BRCA", "Mutation", dry.run=FALSE, version="2.0.1")
 })
 
+bmut.srv <- TCGAprimaryTumors(bmut)
+sampleTables(bmut.srv)
+anyReplicated(bmut.srv)
+replicates <- Filter(length,
+    lapply(replicated(bmut.srv)[[1]], function(x) colnames(bmut.srv[[1]])[x])
+)
+
+sum(sapply(replicated(bmut.srv), any))
+## 9
+## remove replicated observations
+bmut.surv <- bmut.srv[, list("BRCA_Mutation-20160128" = !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))]
+stopifnot(!anyReplicated(bmut.surv))
+
 # set up survival time
-cd = colData(bmut)
-cd = cd[which(!is.na(bmut$OS.Time)),]
-library(survival)
-osurv = Surv(cd$OS.Time/365.25, cd$OS.event)
+colData(bmut.surv) <- colData(bmut)[!is.na(bmut$OS.Time), ]
+osurv <- Surv(bmut.surv$OS.Time/365.25, bmut.surv$OS.event)
 
-bmuts = experiments(bmut)[[1]]
-bmut.srv = bmuts[, which(!is.na(bmut$OS.Time))]
+system.time(
+  mutsyms <- as(lapply(as(bmut.surv[[1L]], "GRangesList"), function(x) x$Hugo_Symbol), "CharacterList")
+)
 
-bmsym = assay(bmut.srv)  # first is Hugo
-
-system.time(mutsyms <- bplapply(1:ncol(bmsym), 
-   function(x) as.character(na.omit(bmsym[,x]))))
-system.time(multimuts <- bplapply(1:ncol(bmsym), 
-   function(x) sum(duplicated(as.character(na.omit(bmsym[,x]))))))
+system.time(
+  lapply(mutsyms, function(x) sum(duplicated(x)))
+)
 ```
 
 ```{r lksurv}
@@ -69,7 +69,7 @@ TCGA OS.Time, is consistent with the display at the [GDC Data Portal](https://po
 gstrat = function(sym="TTN", mutlist, survdat) {
  stopifnot(inherits(survdat, "Surv"))
  stopifnot(length(survdat) == length(mutlist))
- hassym = sapply(mutlist, function(x) sym %in% x)
+ hassym <- unlist(list(sym) %in% mutlist)
  plot(survfit(survdat~hassym), main=sym, lty=1:2, xlab="Years")
 }
 gstrat("TTN", mutsyms, osurv)
@@ -120,10 +120,11 @@ plot(survfit(osurv~chk[,chkp.inds[which(chisqs>5)]]), lty=1:2, main=paste(cpr, c
 # Using domain classification of mutations
 
 ```{r lkdom, cache=TRUE}
-dom = assay(bmut.srv, 47)  # domain_WU
+dom = assay(bmut.surv[[1L]], "domain_WU")
 length(grep("Znf", na.omit(as.character(dom)))) # frequently noted
-system.time(mutdoms <- bplapply(1:ncol(dom), 
-   function(x) as.character(na.omit(dom[,x]))))
+system.time(
+    mutdoms <- bplapply(1:ncol(dom), function(x) as.character(na.omit(dom[,x])))
+)
 ```
 
 Isolate individuals with mutations annotated to Znf domain
