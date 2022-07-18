@@ -51,7 +51,10 @@ length(replicates)
 ## 9
 
 ## Remove replicate observations
-bmut.surv <- bmut.srv[, list("BRCA_Mutation-20160128" = !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))]
+bmut.surv <- bmut.srv[,
+    list("BRCA_Mutation-20160128" =
+        !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))
+]
 stopifnot(!anyReplicated(bmut.surv))
 
 ## See mutation classifications
