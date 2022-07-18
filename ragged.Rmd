@@ -66,7 +66,9 @@ osurv <- Surv(bmut.surv$OS.Time/365.25, bmut.surv$OS.event)
 
 ## Obtain Hugo_Symbols for each sample
 system.time(
-  mutsyms <- as(lapply(as(bmut.surv[[1L]], "GRangesList"), function(x) x$Hugo_Symbol), "CharacterList")
+  mutsyms <- as(
+    lapply(as(bmut.surv[[1L]], "GRangesList"), function(x) x$Hugo_Symbol),
+  "CharacterList")
 )
 
 ## Number of mutations by sample
