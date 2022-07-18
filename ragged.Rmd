@@ -30,17 +30,25 @@ register(MulticoreParam(4))
 suppressMessages({
 bmut = curatedTCGAData("BRCA", "Mutation", dry.run=FALSE, version="2.0.1")
 })
+sampleTables(bmut)
 
+## Filter only for primary solid tumors (code 01)
 bmut.srv <- TCGAprimaryTumors(bmut)
 sampleTables(bmut.srv)
+
+## Check for replicates
 anyReplicated(bmut.srv)
+
+## Obtain names of replicate samples by colData rowname
 replicates <- Filter(length,
     lapply(replicated(bmut.srv)[[1]], function(x) colnames(bmut.srv[[1]])[x])
 )
 
+## Total number of replicates
 sum(sapply(replicated(bmut.srv), any))
 ## 9
-## remove replicated observations
+
+## Remove replicate observations
 bmut.surv <- bmut.srv[, list("BRCA_Mutation-20160128" = !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))]
 stopifnot(!anyReplicated(bmut.surv))
 
@@ -51,12 +59,14 @@ table(mcols(bmut.surv[[1]])$Variant_Classification)
 colData(bmut.surv) <- colData(bmut)[!is.na(bmut$OS.Time), ]
 osurv <- Surv(bmut.surv$OS.Time/365.25, bmut.surv$OS.event)
 
+## Obtain Hugo_Symbols for each sample
 system.time(
   mutsyms <- as(lapply(as(bmut.surv[[1L]], "GRangesList"), function(x) x$Hugo_Symbol), "CharacterList")
 )
 
+## Number of mutations by sample
 system.time(
-  lapply(mutsyms, function(x) sum(duplicated(x)))
+  sapply(mutsyms, function(x) sum(duplicated(x)))
 )
 ```
 
