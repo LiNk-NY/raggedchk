@@ -44,8 +44,10 @@ replicates <- Filter(length,
     lapply(replicated(bmut.srv)[[1]], function(x) colnames(bmut.srv[[1]])[x])
 )
 
-## Total number of replicates
+## Total number of patients with replicates
 sum(sapply(replicated(bmut.srv), any))
+## OR
+length(replicates)
 ## 9
 
 ## Remove replicate observations
