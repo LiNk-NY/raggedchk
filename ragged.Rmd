@@ -17,6 +17,7 @@ output:
 ```{r getpks,echo=FALSE, results="hide"}
 suppressPackageStartupMessages({
   library(curatedTCGAData)
+  library(TCGAutils)
   library(BiocParallel)
   library(survival)
 })
@@ -42,6 +43,9 @@ sum(sapply(replicated(bmut.srv), any))
 ## remove replicated observations
 bmut.surv <- bmut.srv[, list("BRCA_Mutation-20160128" = !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))]
 stopifnot(!anyReplicated(bmut.surv))
+
+## See mutation classifications
+table(mcols(bmut.surv[[1]])$Variant_Classification)
 
 # set up survival time
 colData(bmut.surv) <- colData(bmut)[!is.na(bmut$OS.Time), ]
