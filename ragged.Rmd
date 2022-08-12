@@ -1,10 +1,10 @@
 ---
-title: "ragged experiment demos"
+title: "RaggedExperiment Demos"
 author: "Vincent J. Carey, stvjc at channing.harvard.edu"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{ragged experiment demos}
+  %\VignetteIndexEntry{RaggedExperiment Demos}
   %\VignetteEncoding{UTF-8}
 output:
   BiocStyle::html_document:
@@ -26,60 +26,97 @@ suppressPackageStartupMessages({
 # Enumerate mutations by symbol in BRCA, couple to overall survival
 
 ```{r cache=TRUE}
-register(MulticoreParam(4))
 suppressMessages({
 bmut = curatedTCGAData("BRCA", "Mutation", dry.run=FALSE, version="2.0.1")
 })
 sampleTables(bmut)
+```
 
 ## Filter only for primary solid tumors (code 01)
+
+```{r cache=TRUE}
 bmut.srv <- TCGAprimaryTumors(bmut)
 sampleTables(bmut.srv)
+```
 
 ## Check for replicates
+
+```{r cache=TRUE}
 anyReplicated(bmut.srv)
 
 ## Obtain names of replicate samples by colData rowname
 replicates <- Filter(length,
     lapply(replicated(bmut.srv)[[1]], function(x) colnames(bmut.srv[[1]])[x])
 )
+```
 
 ## Total number of patients with replicates
+
+```{r cache=TRUE}
 sum(sapply(replicated(bmut.srv), any))
 ## OR
 length(replicates)
-## 9
+```
 
 ## Remove replicate observations
+
+```{r cache=TRUE}
 bmut.surv <- bmut.srv[,
     list("BRCA_Mutation-20160128" =
         !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))
 ]
 stopifnot(!anyReplicated(bmut.surv))
+```
 
 ## See mutation classifications
-table(mcols(bmut.surv[[1]])$Variant_Classification)
 
-# set up survival time
+```{r cache=TRUE}
+table(mcols(bmut.surv[[1]])$Variant_Classification)
+```
+
+## Select only non-silent mutations
+
+```{r cache=TRUE}
+## mcolsFilter (?)
+ragex <- bmut.surv[[1]]
+ragex <- ragex[mcols(bmut.surv[[1]])$Variant_Classification != "Silent", ]
+table(mcols(ragex)$Variant_Classification)
+bmut[[1]] <- ragex
+```
+
+## Set up survival time
+
+```{r cache=TRUE}
 colData(bmut.surv) <- colData(bmut)[!is.na(bmut$OS.Time), ]
 osurv <- Surv(bmut.surv$OS.Time/365.25, bmut.surv$OS.event)
+```
 
 ## Obtain Hugo_Symbols for each sample
+
+```{r cache=TRUE}
 system.time(
   mutsyms <- as(
     lapply(as(bmut.surv[[1L]], "GRangesList"), function(x) x$Hugo_Symbol),
   "CharacterList")
 )
-
-## Number of mutations by sample
-system.time(
-  sapply(mutsyms, function(x) sum(duplicated(x)))
-)
+mutsyms
 ```
+
+## Sample mutations tally
+
+```{r cache=TRUE}
+system.time({
+  print(table(sapply(mutsyms, function(x) sum(duplicated(x)))))
+})
+```
+
+## Plot overall survival curve
 
 ```{r lksurv}
-plot(survfit(osurv~1))
+plot(survfit(osurv~1), main = "Overall BRCA Survival", xlab = "Years")
 ```
+
+## Compare to GDC Data Portal plot
 
 The display, based on 793 observations with non-missing
 TCGA OS.Time, is consistent with the display at the [GDC Data Portal](https://portal.gdc.cancer.gov/exploration?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22content%22%3A%7B%22field%22%3A%22cases.diagnoses.tissue_or_organ_of_origin%22%2C%22value%22%3A%5B%22axillary%20tail%20of%20breast%22%2C%22breast%2C%20nos%22%2C%22central%20portion%20of%20breast%22%2C%22lower-inner%20quadrant%20of%20breast%22%2C%22lower-outer%20quadrant%20of%20breast%22%2C%22nipple%22%2C%22overlapping%20lesion%20of%20breast%22%2C%22upper-inner%20quadrant%20of%20breast%22%2C%22upper-outer%20quadrant%20of%20breast%22%5D%7D%2C%22op%22%3A%22in%22%7D%2C%7B%22content%22%3A%7B%22field%22%3A%22cases.primary_site%22%2C%22value%22%3A%5B%22breast%22%5D%7D%2C%22op%22%3A%22in%22%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.project.program.name%22%2C%22value%22%3A%5B%22TCGA%22%5D%7D%7D%5D%7D&searchTableTab=genes), based on 1077 cases.
@@ -87,22 +124,24 @@ TCGA OS.Time, is consistent with the display at the [GDC Data Portal](https://po
 # Obtain gene-stratified survival
 
 ```{r dogs}
-gstrat = function(sym="TTN", mutlist, survdat) {
- stopifnot(inherits(survdat, "Surv"))
- stopifnot(length(survdat) == length(mutlist))
- hassym <- unlist(list(sym) %in% mutlist)
- plot(survfit(survdat~hassym), main=sym, lty=1:2, xlab="Years")
+gstrat <- function(sym="TTN", mutlist, survdat) {
+  stopifnot(inherits(survdat, "Surv"))
+  stopifnot(length(survdat) == length(mutlist))
+  hassym <- unlist(list(sym) %in% mutlist)
+  plot(survfit(survdat~hassym), main=sym, lty=1:2, xlab="Years")
 }
 gstrat("TTN", mutsyms, osurv)
 gstrat("TP53", mutsyms, osurv)
 ```
 
-# Frequencies
+## Frequencies
 
 ```{r dofr}
-commut = tail(sort(table(unlist(mutsyms))), 30)
+commut <- tail(sort(table(unlist(mutsyms))), 30)
 commut
 ```
+
+## Log mutation count per tumor
 
 ```{r lkhist}
 hist(log(sapply(mutsyms,length)), main="Log mutation count per tumor")
@@ -111,55 +150,62 @@ hist(log(sapply(mutsyms,length)), main="Log mutation count per tumor")
 # Combinations of mutations
 
 ```{r lkco}
-hasmut = function(sym="TP53", mutlist) {
+hasmut <- function(sym="TP53", mutlist) {
  sapply(mutlist, function(x) sym %in% x)
 }
 table( hasmut("TP53", mutsyms), hasmut("PIK3CA", mutsyms) )
 ```
 
-Assemble pairs
+## Assemble pairs
+
 ```{r lkmpairs}
-common_pairs = combn(names(commut),2)
+common_pairs <- combn(names(commut),2)
 common_pairs[,1:4]
 ```
 
-# Greedy search for deleterious pairs
+## Greedy search for deleterious pairs
 
 ```{r lkpairs}
-indicate_pair = function(sym1, sym2, mutlist)
- hasmut(sym1, mutlist) & hasmut(sym2, mutlist)
-chk = apply(common_pairs,2,function(z) indicate_pair(z[1], z[2], mutsyms))
-chkp.inds = which(apply(chk,2,sum)>20) # disallow very rare combos
+indicate_pair <- function(sym1, sym2, mutlist)
+  hasmut(sym1, mutlist) & hasmut(sym2, mutlist)
+chk <- apply(common_pairs,2,function(z) indicate_pair(z[1], z[2], mutsyms))
+chkp.inds <- which(apply(chk,2,sum)>20) # disallow very rare combos
 dim(chk)
 dim(chk[,chkp.inds])
-chisqs = apply(chk[,chkp.inds],2,function(z)survdiff(osurv~z)$chisq)
+chisqs <- apply(chk[,chkp.inds],2,function(z)survdiff(osurv~z)$chisq)
 hist(chisqs)
-cpr = common_pairs[,chkp.inds][, which(chisqs>5)]
+cpr <- common_pairs[,chkp.inds][, which(chisqs>5)]
 plot(survfit(osurv~chk[,chkp.inds[which(chisqs>5)]]), lty=1:2, main=paste(cpr, collapse=" & " ))
 ```
 
 # Using domain classification of mutations
 
 ```{r lkdom, cache=TRUE}
-dom = assay(bmut.surv[[1L]], "domain_WU")
+dom <- assay(bmut.surv[[1L]], "domain_WU")
 length(grep("Znf", na.omit(as.character(dom)))) # frequently noted
+register(MulticoreParam(parallel::detectCores() - 1L))
 system.time(
-    mutdoms <- bplapply(1:ncol(dom), function(x) as.character(na.omit(dom[,x])))
+    mutdoms <- bplapply(
+        seq_len(ncol(dom)),
+        function(x) as.character(na.omit(dom[,x]))
+    )
 )
 ```
 
-Isolate individuals with mutations annotated to Znf domain
+## Isolate individuals with mutations
+
+### Znf domain
 
 ```{r noz}
-noz = sapply(mutdoms, function(x) length(grep("Znf", x))==0)
+noz <- sapply(mutdoms, function(x) length(grep("Znf", x))==0)
 table(noz)
 survdiff(osurv~noz)
 ```
 
-SH3
+### SH3
 
 ```{r nosh}
-nosh3 = sapply(mutdoms, function(x) length(grep("SH3", x))==0)
+nosh3 <- sapply(mutdoms, function(x) length(grep("SH3", x))==0)
 survdiff(osurv~nosh3)
 ```
 
