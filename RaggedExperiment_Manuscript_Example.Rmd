@@ -12,6 +12,11 @@ output:
     toc: true
 ---
 
+# GitHub Repository
+
+https://github.com/LiNk-NY/raggedchk cloned from 
+https://github.com/vjcitn/raggedchk
+
 # Installation
 
 ```{r,eval=FALSE}
