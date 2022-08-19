@@ -205,13 +205,9 @@ object_size(sparseAssay(inmutbox))
 
 # Table of object sizes by data type and source
 
-| Data Source | Data Type | RaggedExperiment | data.frame | sparse Matrix | matrix (reduced rows) | matrix (sparse) |
-|-------------|-----------|-----------------|------------|---------------|-----------------------|-----------------|
-| curatedTCGAData | CNASeq | `r object_size(coad[["COAD_CNASeq-20160128"]])` | NA | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]], sparse = TRUE))` | `r object_size(compactAssay(coad[["COAD_CNASeq-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]]))` |
-| curatedTCGAData | CNASeq (in genes) | `r object_size(ingenes)` | NA | `r object_size(sparseAssay(ingenes, sparse = TRUE))` | `r object_size(compactAssay(ingenes))` | `r object_size(sparseAssay(ingenes))` |
-| curatedTCGAData | Mutation | `r object_size(coad[["COAD_Mutation-20160128"]])` | NA | NA | `r object_size(compactAssay(coad[["COAD_Mutation-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_Mutation-20160128"]]))` |
-| curatedTCGAData | Mutation (in genes) | `r object_size(mingenes)` | NA | NA | `r object_size(compactAssay(mingenes))` | `r object_size(sparseAssay(mingenes))` |
-| RTCGAToolbox | CNASeq | `r object_size(cnatoolbox)` | `r object_size(coadseq@CNASeq)` | `r object_size(sparseAssay(cnatoolbox, sparse = TRUE))` | `r object_size(compactAssay(cnatoolbox))` | `r object_size(sparseAssay(cnatoolbox))` |
-| RTCGAToolbox | CNASeq (in genes) | `r object_size(incnabox)` | NA | `r object_size(sparseAssay(incnabox, sparse = TRUE))` | `r object_size(compactAssay(incnabox))` | `r object_size(sparseAssay(incnabox))` |
-| RTCGAToolbox | Mutation | `r object_size(muttoolbox)`| `r object_size(coadmut@Mutation)`| NA | `r object_size(compactAssay(muttoolbox))`| `r object_size(sparseAssay(muttoolbox))`|
-| RTCGAToolbox | Mutation (in genes) | `r object_size(inmutbox)` | NA | NA | `r object_size(compactAssay(inmutbox))` | `r object_size(sparseAssay(inmutbox))` |
+| Data Source | Assay | Data Type | RaggedExperiment | as.data.frame | sparse Matrix | matrix (reduced rows) | matrix (sparse) |
+|-------------|-------|-----------|-----------------|------------|---------------|-----------------------|-----------------|
+| curatedTCGAData | CNASeq | numeric | `r object_size(coad[["COAD_CNASeq-20160128"]])` | `r object_size(as.data.frame(coad[["COAD_CNASeq-20160128"]]@assays))` | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]], sparse = TRUE))` | `r object_size(compactAssay(coad[["COAD_CNASeq-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]]))` |
+| curatedTCGAData | CNASeq (in genes) | numeric | `r object_size(ingenes)` | `r object_size(as.data.frame(ingenes@assays))` | `r object_size(sparseAssay(ingenes, sparse = TRUE))` | `r object_size(compactAssay(ingenes))` | `r object_size(sparseAssay(ingenes))` |
+| curatedTCGAData | Mutation | character | `r object_size(coad[["COAD_Mutation-20160128"]])` | `r object_size(as.data.frame(coad[["COAD_Mutation-20160128"]]@assays))` | NA | `r object_size(compactAssay(coad[["COAD_Mutation-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_Mutation-20160128"]]))` |
+| curatedTCGAData | Mutation (in genes) | character | `r object_size(mingenes)` | `r object_size(as.data.frame(mingenes@assays))` | NA | `r object_size(compactAssay(mingenes))` | `r object_size(sparseAssay(mingenes))` |
