@@ -34,6 +34,22 @@ coad
 
 ## Measuring size
 
+Functions used to measure object size
+
+```{r}
+object_size <-  function(x) 
+{
+    as.object_size(object.size(x))
+}
+
+as.object_size <- function(num, unit = "MB") 
+{
+    class(num) <- "object_size"
+    format(num, units = unit, standard = "SI")
+}
+```
+
+
 ### CNAseq
 
 ```{r,eval=FALSE}
@@ -42,6 +58,8 @@ object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]], sparse = TRUE))
 object_size(compactAssay(coad[["COAD_CNASeq-20160128"]]))
 object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]]))
 ```
+
+### Mutation 
 
 ```{r,eval=FALSE}
 object_size(coad[["COAD_Mutation-20160128"]])
@@ -87,7 +105,7 @@ identical(re, re2)
 #' [1] FALSE
 ```
 
-## Object Sizes within genes
+## CNAseq in genes
 
 ```{r}
 ingenes <- subsetByOverlaps(re, ugenes)
@@ -96,6 +114,26 @@ ingenes <- subsetByOverlaps(re, ugenes)
 ```{r,eval=FALSE}
 object_size(compactAssay(ingenes))
 object_size(sparseAssay(ingenes))
+```
+
+## Mutations in genes
+
+```{r}
+# https://gdac.broadinstitute.org/runs/analyses__2016_01_28/reports/cancer/COAD-TP/CopyNumberLowPass_Gistic2/nozzle.html
+mre <- coad[["COAD_Mutation-20160128"]]
+## possible bug -- seqlevelsStyle must go first, then genome
+seqlevelsStyle(mre) <- "UCSC"
+genome(rowRanges(mre)) <- "hg19"
+rowRanges(mre)
+```
+
+```{r}
+mingenes <- subsetByOverlaps(mre, ugenes)
+```
+
+```{r,eval=FALSE}
+object_size(compactAssay(mingenes))
+object_size(sparseAssay(mingenes))
 ```
 
 ## Obtaining data directly from `RTCGAToolbox`
@@ -160,12 +198,14 @@ object_size(compactAssay(inmutbox))
 object_size(sparseAssay(inmutbox))
 ```
 
+# Table of object sizes by data type and source
+
 | Data Source | Data Type | RaggedExperiment | data.frame | sparse Matrix | matrix (reduced rows) | matrix (sparse) |
 |-------------|-----------|-----------------|------------|---------------|-----------------------|-----------------|
 | curatedTCGAData | CNASeq | `r object_size(coad[["COAD_CNASeq-20160128"]])` | NA | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]], sparse = TRUE))` | `r object_size(compactAssay(coad[["COAD_CNASeq-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]]))` |
 | curatedTCGAData | CNASeq (in genes) | `r object_size(ingenes)` | NA | `r object_size(sparseAssay(ingenes, sparse = TRUE))` | `r object_size(compactAssay(ingenes))` | `r object_size(sparseAssay(ingenes))` |
 | curatedTCGAData | Mutation | `r object_size(coad[["COAD_Mutation-20160128"]])` | NA | NA | `r object_size(compactAssay(coad[["COAD_Mutation-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_Mutation-20160128"]]))` |
-| curatedTCGAData | Mutation (in genes) | `r object_size(coad[["COAD_Mutation-20160128"]])` | NA | NA | `r object_size(compactAssay(coad[["COAD_Mutation-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_Mutation-20160128"]]))` |
+| curatedTCGAData | Mutation (in genes) | `r object_size(mingenes)` | NA | NA | `r object_size(compactAssay(mingenes))` | `r object_size(sparseAssay(mingenes))` |
 | RTCGAToolbox | CNASeq | `r object_size(cnatoolbox)` | `r object_size(coadseq@CNASeq)` | `r object_size(sparseAssay(cnatoolbox, sparse = TRUE))` | `r object_size(compactAssay(cnatoolbox))` | `r object_size(sparseAssay(cnatoolbox))` |
 | RTCGAToolbox | CNASeq (in genes) | `r object_size(incnabox)` | NA | `r object_size(sparseAssay(incnabox, sparse = TRUE))` | `r object_size(compactAssay(incnabox))` | `r object_size(sparseAssay(incnabox))` |
 | RTCGAToolbox | Mutation | `r object_size(muttoolbox)`| `r object_size(coadmut@Mutation)`| NA | `r object_size(compactAssay(muttoolbox))`| `r object_size(sparseAssay(muttoolbox))`|
