@@ -31,10 +31,10 @@ library(curatedTCGAData)
 ```
 
 ```{r,message=FALSE,cache=TRUE}
-coad <- curatedTCGAData(
-    "COAD", version = "2.0.1", assays = c("CN*", "Mutation"), dry.run = FALSE
+BRCA <- curatedTCGAData(
+    "BRCA", version = "2.0.1", assays = c("CNASeq", "Mutation"), dry.run = FALSE
 )
-coad
+BRCA
 ```
 
 ## Measuring size
@@ -58,19 +58,19 @@ as.object_size <- function(num, unit = "MB")
 ### CNAseq
 
 ```{r,eval=FALSE}
-object_size(coad[["COAD_CNASeq-20160128"]])
-object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]], sparse = TRUE))
-object_size(compactAssay(coad[["COAD_CNASeq-20160128"]]))
-object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]]))
+object_size(BRCA[["BRCA_CNASeq-20160128"]])
+object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]], sparse = TRUE))
+object_size(compactAssay(BRCA[["BRCA_CNASeq-20160128"]]))
+object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]]))
 ```
 
 ### Mutation 
 
 ```{r,eval=FALSE}
-object_size(coad[["COAD_Mutation-20160128"]])
-# object_size(sparseAssay(coad[["COAD_Mutation-20160128"]], sparse = TRUE))
-object_size(compactAssay(coad[["COAD_Mutation-20160128"]]))
-object_size(sparseAssay(coad[["COAD_Mutation-20160128"]]))
+object_size(BRCA[["BRCA_Mutation-20160128"]])
+# object_size(sparseAssay(BRCA[["BRCA_Mutation-20160128"]], sparse = TRUE))
+object_size(compactAssay(BRCA[["BRCA_Mutation-20160128"]]))
+object_size(sparseAssay(BRCA[["BRCA_Mutation-20160128"]]))
 ```
 
 # Object Sizes from `curatedTCGAData`
@@ -91,8 +91,8 @@ ugenes <- unlist(genes)
 ## Standardize `seqlevelsStyle` to UCSC
 
 ```{r}
-# https://gdac.broadinstitute.org/runs/analyses__2016_01_28/reports/cancer/COAD-TP/CopyNumberLowPass_Gistic2/nozzle.html
-re <- coad[["COAD_CNASeq-20160128"]]
+# https://gdac.broadinstitute.org/runs/analyses__2016_01_28/reports/cancer/BRCA-TP/CopyNumberLowPass_Gistic2/nozzle.html
+re <- BRCA[["BRCA_CNASeq-20160128"]]
 ## possible bug -- seqlevelsStyle must go first, then genome
 seqlevelsStyle(re) <- "UCSC"
 genome(rowRanges(re)) <- "hg19"
@@ -102,7 +102,7 @@ rowRanges(re)
 ## It looks like the order matters, otherwise you get NCBI seqlevels...
 
 ```{r,eval=FALSE}
-re2 <- coad[["COAD_CNASeq-20160128"]]
+re2 <- BRCA[["BRCA_CNASeq-20160128"]]
 genome(rowRanges(re2)) <- "hg19"
 seqlevelsStyle(re2) <- "UCSC"
 rowRanges(re2)
@@ -124,8 +124,8 @@ object_size(sparseAssay(ingenes))
 ## Mutations in genes
 
 ```{r}
-# https://gdac.broadinstitute.org/runs/analyses__2016_01_28/reports/cancer/COAD-TP/CopyNumberLowPass_Gistic2/nozzle.html
-mre <- coad[["COAD_Mutation-20160128"]]
+# https://gdac.broadinstitute.org/runs/analyses__2016_01_28/reports/cancer/BRCA-TP/CopyNumberLowPass_Gistic2/nozzle.html
+mre <- BRCA[["BRCA_Mutation-20160128"]]
 ## possible bug -- seqlevelsStyle must go first, then genome
 seqlevelsStyle(mre) <- "UCSC"
 genome(rowRanges(mre)) <- "hg19"
@@ -145,16 +145,16 @@ object_size(sparseAssay(mingenes))
 
 ```{r}
 library(RTCGAToolbox)
-getLinks("COAD", CNASeq = TRUE)
-coadseq <- getFirehoseData("COAD", CNASeq = TRUE)
-cnatoolbox <- biocExtract(coadseq, "CNASeq")
+getLinks("BRCA", CNASeq = TRUE)
+BRCAseq <- getFirehoseData("BRCA", CNASeq = TRUE)
+cnatoolbox <- biocExtract(BRCAseq, "CNASeq")
 seqlevelsStyle(cnatoolbox) <- "UCSC"
 genome(cnatoolbox) <- "hg19"
 rowRanges(cnatoolbox)
 
-getLinks("COAD", Mutation = TRUE)
-coadmut <- getFirehoseData("COAD", Mutation = TRUE)
-muttoolbox <- biocExtract(coadmut, "Mutation")
+getLinks("BRCA", Mutation = TRUE)
+BRCAmut <- getFirehoseData("BRCA", Mutation = TRUE)
+muttoolbox <- biocExtract(BRCAmut, "Mutation")
 seqlevelsStyle(muttoolbox) <- "UCSC"
 genome(muttoolbox) <- "hg19"
 rowRanges(muttoolbox)
@@ -164,7 +164,7 @@ rowRanges(muttoolbox)
 
 ```{r,eval=FALSE}
 object_size(cnatoolbox)
-object_size(coadseq@CNASeq)
+object_size(BRCAseq@CNASeq)
 object_size(sparseAssay(cnatoolbox, sparse = TRUE))
 object_size(compactAssay(cnatoolbox))
 object_size(sparseAssay(cnatoolbox))
@@ -173,7 +173,7 @@ object_size(sparseAssay(cnatoolbox))
 
 ```{r,eval=FALSE}
 object_size(muttoolbox)
-object_size(coadmut@Mutation)
+object_size(BRCAmut@Mutation)
 # object_size(sparseAssay(muttoolbox, sparse = TRUE)) # typeof character
 object_size(compactAssay(muttoolbox))
 object_size(sparseAssay(muttoolbox))
@@ -207,7 +207,15 @@ object_size(sparseAssay(inmutbox))
 
 | Data Source | Assay | Data Type | RaggedExperiment | as.data.frame | sparse Matrix | matrix (reduced rows) | matrix (sparse) |
 |-------------|-------|-----------|-----------------|------------|---------------|-----------------------|-----------------|
-| curatedTCGAData | CNASeq | numeric | `r object_size(coad[["COAD_CNASeq-20160128"]])` | `r object_size(as.data.frame(coad[["COAD_CNASeq-20160128"]]@assays))` | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]], sparse = TRUE))` | `r object_size(compactAssay(coad[["COAD_CNASeq-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_CNASeq-20160128"]]))` |
+| curatedTCGAData | CNASeq | numeric | `r object_size(BRCA[["BRCA_CNASeq-20160128"]])` | `r object_size(as.data.frame(BRCA[["BRCA_CNASeq-20160128"]]@assays))` | `r object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]], sparse = TRUE))` | `r object_size(compactAssay(BRCA[["BRCA_CNASeq-20160128"]]))` | `r object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]]))` |
 | curatedTCGAData | CNASeq (in genes) | numeric | `r object_size(ingenes)` | `r object_size(as.data.frame(ingenes@assays))` | `r object_size(sparseAssay(ingenes, sparse = TRUE))` | `r object_size(compactAssay(ingenes))` | `r object_size(sparseAssay(ingenes))` |
-| curatedTCGAData | Mutation | character | `r object_size(coad[["COAD_Mutation-20160128"]])` | `r object_size(as.data.frame(coad[["COAD_Mutation-20160128"]]@assays))` | NA | `r object_size(compactAssay(coad[["COAD_Mutation-20160128"]]))` | `r object_size(sparseAssay(coad[["COAD_Mutation-20160128"]]))` |
+| curatedTCGAData | Mutation | character | `r object_size(BRCA[["BRCA_Mutation-20160128"]])` | `r object_size(as.data.frame(BRCA[["BRCA_Mutation-20160128"]]@assays))` | NA | `r object_size(compactAssay(BRCA[["BRCA_Mutation-20160128"]]))` | `r object_size(sparseAssay(BRCA[["BRCA_Mutation-20160128"]]))` |
 | curatedTCGAData | Mutation (in genes) | character | `r object_size(mingenes)` | `r object_size(as.data.frame(mingenes@assays))` | NA | `r object_size(compactAssay(mingenes))` | `r object_size(sparseAssay(mingenes))` |
+
+
+## Efficiency in Conversion
+
+```{r}
+
+```
+

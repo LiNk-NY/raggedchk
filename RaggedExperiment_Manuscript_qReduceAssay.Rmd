@@ -1,0 +1,87 @@
+---
+title: "qReduceAssay BRCA"
+author: "Levi Waldron"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{RaggedExperiment qReduceAssay}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+---
+
+
+```{r,include=TRUE,results="hide",message=FALSE,warning=FALSE}
+library(curatedTCGAData)
+library(TCGAutils)
+library(RaggedExperiment)
+```
+
+```{r}
+cnvdry <-
+  curatedTCGAData(assays = "CNVSNP",
+                  version = "2.0.1",
+                  dry.run = TRUE)
+nrow(cnvdry)
+sum(as.numeric(gsub(" Mb", "", cnvdry$file_size, fixed = TRUE)))
+```
+
+```{r}
+cnv <-
+  curatedTCGAData("BRCA", assays = "CNVSNP",
+                  version = "2.0.1",
+                  dry.run = FALSE)
+```
+
+
+```{r}
+mutsdry <-
+  curatedTCGAData(assays = "Mutation",
+                  version = "2.0.1",
+                  dry.run = TRUE)
+nrow(mutsdry)
+sum(as.numeric(sub(" Mb", "", mutsdry$file_size)))
+```
+
+
+```{r}
+muts <-
+  curatedTCGAData(diseaseCode = "BRCA", assays = "Mutation",
+                  version = "2.0.1",
+                  dry.run = FALSE)
+mutsexplist <- experiments(muts)
+length(mutsexplist)
+sum(sapply(mutsexplist, ncol))
+print(object.size(mutsexplist), units = "auto")
+```
+
+```{r}
+system.time(cnvsimp <- simplifyTCGA(cnv[, , "BRCA_CNVSNP-20160128"]))
+```
+
+
+```{r}
+object_size <- function(x, unit = "MB", standard = "SI")  
+{
+    num <- object.size(x)
+    class(num) <- "object_size"
+    print(num, units = unit, standard = standard)
+    return(invisible(num))
+}
+
+as.object_size <- function(num, unit = "MB", standard = "SI") 
+{
+    if (!is.numeric(num))
+        stop("'num' must be numeric")
+    class(num) <- "object_size"
+    print(num, units = unit, standard = standard)
+    return(invisible(num))
+}
+```
+
+```{r}
+object_size(cnv[["BRCA_CNVSNP-20160128"]])
+object_size(cnvsimp[["BRCA_CNVSNP-20160128_simplified"]])
+```
