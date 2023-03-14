@@ -12,9 +12,12 @@ output:
     toc: true
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
 # GitHub Repository
 
-https://github.com/LiNk-NY/raggedchk cloned from 
+https://github.com/LiNk-NY/raggedchk cloned and updated from 
 https://github.com/vjcitn/raggedchk
 
 # Installation
@@ -28,6 +31,8 @@ BiocManager::install("RaggedExperiment")
 ```{r,include=TRUE,results="hide",message=FALSE,warning=FALSE}
 library(RaggedExperiment)
 library(curatedTCGAData)
+library(GenomeInfoDb)
+library(raggedchk)
 ```
 
 ```{r,message=FALSE,cache=TRUE}
@@ -38,22 +43,6 @@ BRCA
 ```
 
 ## Measuring size
-
-Functions used to measure object size
-
-```{r}
-object_size <-  function(x) 
-{
-    as.object_size(object.size(x))
-}
-
-as.object_size <- function(num, unit = "MB") 
-{
-    class(num) <- "object_size"
-    format(num, units = unit, standard = "SI")
-}
-```
-
 
 ### CNAseq
 
@@ -211,11 +200,3 @@ object_size(sparseAssay(inmutbox))
 | curatedTCGAData | CNASeq (in genes) | numeric | `r object_size(ingenes)` | `r object_size(as.data.frame(ingenes@assays))` | `r object_size(sparseAssay(ingenes, sparse = TRUE))` | `r object_size(compactAssay(ingenes))` | `r object_size(sparseAssay(ingenes))` |
 | curatedTCGAData | Mutation | character | `r object_size(BRCA[["BRCA_Mutation-20160128"]])` | `r object_size(as.data.frame(BRCA[["BRCA_Mutation-20160128"]]@assays))` | NA | `r object_size(compactAssay(BRCA[["BRCA_Mutation-20160128"]]))` | `r object_size(sparseAssay(BRCA[["BRCA_Mutation-20160128"]]))` |
 | curatedTCGAData | Mutation (in genes) | character | `r object_size(mingenes)` | `r object_size(as.data.frame(mingenes@assays))` | NA | `r object_size(compactAssay(mingenes))` | `r object_size(sparseAssay(mingenes))` |
-
-
-## Efficiency in Conversion
-
-```{r}
-
-```
-

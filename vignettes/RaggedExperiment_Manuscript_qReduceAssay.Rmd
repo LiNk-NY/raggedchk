@@ -17,6 +17,7 @@ output:
 library(curatedTCGAData)
 library(TCGAutils)
 library(RaggedExperiment)
+library(raggedchk)
 ```
 
 ```{r}
@@ -59,26 +60,6 @@ print(object.size(mutsexplist), units = "auto")
 
 ```{r}
 system.time(cnvsimp <- simplifyTCGA(cnv[, , "BRCA_CNVSNP-20160128"]))
-```
-
-
-```{r}
-object_size <- function(x, unit = "MB", standard = "SI")  
-{
-    num <- object.size(x)
-    class(num) <- "object_size"
-    print(num, units = unit, standard = standard)
-    return(invisible(num))
-}
-
-as.object_size <- function(num, unit = "MB", standard = "SI") 
-{
-    if (!is.numeric(num))
-        stop("'num' must be numeric")
-    class(num) <- "object_size"
-    print(num, units = unit, standard = standard)
-    return(invisible(num))
-}
 ```
 
 ```{r}

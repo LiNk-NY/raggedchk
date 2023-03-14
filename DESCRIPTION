@@ -5,6 +5,16 @@ Authors@R:
   person("Marcel", "Ramos", , "marcel.ramos@sph.cuny.edu",
   c("aut", "cre"), c(ORCID = "0000-0002-3242-0582"))
 Description: Provides code for the table in the application note.
+Depends:
+  R (>= 4.2.0),
+  R (<= 4.3.0)
+Imports:
+  curatedTCGAData,
+  GenomeInfoDb,
+  RTCGAToolbox (>= 2.28.1),
+  RaggedExperiment,
+  TCGAutils,
+  utils
 License: CC0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
