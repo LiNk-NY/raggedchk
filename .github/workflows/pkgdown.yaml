@@ -23,9 +23,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
     
-      - name: Setup Pandoc
-        uses: r-lib/actions/setup-pandoc@v2
-
       - name: Query dependencies
         run: |
           BiocManager::install(c("remotes", "Bioconductor/BiocManager"))
