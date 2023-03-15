@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 # GitHub Repository
 
-https://github.com/LiNk-NY/raggedchk cloned and updated from 
+https://github.com/LiNk-NY/RaggedExperiment_SoftNote cloned and updated from
 https://github.com/vjcitn/raggedchk
 
 # Installation
@@ -32,7 +32,7 @@ BiocManager::install("RaggedExperiment")
 library(RaggedExperiment)
 library(curatedTCGAData)
 library(GenomeInfoDb)
-library(raggedchk)
+library(RaggedExperiment_SoftNote)
 ```
 
 ```{r,message=FALSE,cache=TRUE}
@@ -53,7 +53,7 @@ object_size(compactAssay(BRCA[["BRCA_CNASeq-20160128"]]))
 object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]]))
 ```
 
-### Mutation 
+### Mutation
 
 ```{r,eval=FALSE}
 object_size(BRCA[["BRCA_Mutation-20160128"]])
@@ -177,7 +177,7 @@ inmutbox <- subsetByOverlaps(muttoolbox, ugenes)
 
 
 ```{r,eval=FALSE}
-object_size(incnabox) 
+object_size(incnabox)
 # NA
 object_size(sparseAssay(incnabox, sparse = TRUE))
 object_size(compactAssay(incnabox))
@@ -185,7 +185,7 @@ object_size(sparseAssay(incnabox))
 ```
 
 ```{r,eval=FALSE}
-object_size(inmutbox) 
+object_size(inmutbox)
 # NA
 # object_size(sparseAssay(inmutbox, sparse = TRUE))
 object_size(compactAssay(inmutbox))

@@ -17,7 +17,7 @@ output:
 library(curatedTCGAData)
 library(TCGAutils)
 library(RaggedExperiment)
-library(raggedchk)
+library(RaggedExperiment.SoftNote)
 ```
 
 ```{r}
