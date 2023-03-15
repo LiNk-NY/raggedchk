@@ -32,7 +32,7 @@ BiocManager::install("RaggedExperiment")
 library(RaggedExperiment)
 library(curatedTCGAData)
 library(GenomeInfoDb)
-library(RaggedExperiment_SoftNote)
+library(RaggedExperiment.SoftNote)
 ```
 
 ```{r,message=FALSE,cache=TRUE}
