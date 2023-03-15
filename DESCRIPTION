@@ -11,10 +11,11 @@ Depends:
 Imports:
   curatedTCGAData,
   GenomeInfoDb,
+  org.Hs.eg.db,
   RTCGAToolbox (>= 2.28.1),
   RaggedExperiment,
   TCGAutils,
-  TxDb.Hsapiens.UCSC.hg19.knownGene, 
+  TxDb.Hsapiens.UCSC.hg19.knownGene,
   utils
 Suggests:
   knitr,
