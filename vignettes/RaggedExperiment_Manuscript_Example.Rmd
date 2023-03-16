@@ -1,10 +1,10 @@
 ---
-title: "RaggedExperiment: A Use Case"
+title: "RaggedExperiment: Object Size Comparisons"
 author: "Waldron Lab"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{RaggedExperiment Use-case}
+  %\VignetteIndexEntry{RaggedExperiment Object Size Comparisons}
   %\VignetteEncoding{UTF-8}
 output:
   BiocStyle::html_document:

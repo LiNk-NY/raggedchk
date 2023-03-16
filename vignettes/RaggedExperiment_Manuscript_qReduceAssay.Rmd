@@ -1,10 +1,10 @@
 ---
-title: "qReduceAssay BRCA"
+title: "qReduceAssay on BRCA with RaggedExperiment"
 author: "Levi Waldron"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{RaggedExperiment qReduceAssay}
+  %\VignetteIndexEntry{RaggedExperiment BRCA qReduceAssay}
   %\VignetteEncoding{UTF-8}
 output:
   BiocStyle::html_document:
