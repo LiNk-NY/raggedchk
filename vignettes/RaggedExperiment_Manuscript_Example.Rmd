@@ -194,9 +194,48 @@ object_size(sparseAssay(inmutbox))
 
 # Table of object sizes by data type and source
 
-| Data Source | Assay | Data Type | RaggedExperiment | as.data.frame | sparse Matrix | matrix (reduced rows) | matrix (sparse) |
-|-------------|-------|-----------|-----------------|------------|---------------|-----------------------|-----------------|
-| curatedTCGAData | CNASeq | numeric | `r object_size(BRCA[["BRCA_CNASeq-20160128"]])` | `r object_size(as.data.frame(BRCA[["BRCA_CNASeq-20160128"]]@assays))` | `r object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]], sparse = TRUE))` | `r object_size(compactAssay(BRCA[["BRCA_CNASeq-20160128"]]))` | `r object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]]))` |
-| curatedTCGAData | CNASeq (in genes) | numeric | `r object_size(ingenes)` | `r object_size(as.data.frame(ingenes@assays))` | `r object_size(sparseAssay(ingenes, sparse = TRUE))` | `r object_size(compactAssay(ingenes))` | `r object_size(sparseAssay(ingenes))` |
-| curatedTCGAData | Mutation | character | `r object_size(BRCA[["BRCA_Mutation-20160128"]])` | `r object_size(as.data.frame(BRCA[["BRCA_Mutation-20160128"]]@assays))` | NA | `r object_size(compactAssay(BRCA[["BRCA_Mutation-20160128"]]))` | `r object_size(sparseAssay(BRCA[["BRCA_Mutation-20160128"]]))` |
-| curatedTCGAData | Mutation (in genes) | character | `r object_size(mingenes)` | `r object_size(as.data.frame(mingenes@assays))` | NA | `r object_size(compactAssay(mingenes))` | `r object_size(sparseAssay(mingenes))` |
+```{r,echo=FALSE}
+colnames <- c(
+  "Data Source", "Assay", "Data Type", "RaggedExperiment",
+  "as.data.frame", "sparse Matrix", "matrix (reduced rows)", "matrix (sparse)"
+)
+adata <- data.frame(
+  rep("curatedTCGAData", 4L),
+  c("CNASeq", "CNASeq (in genes)", "Mutation", "Mutation (in genes)"),
+  c("numeric", "numeric", "character", "character")
+)
+tdata <- matrix(c(
+  c(
+    object_size(BRCA[["BRCA_CNASeq-20160128"]]),
+    object_size(as.data.frame(BRCA[["BRCA_CNASeq-20160128"]]@assays)) ,
+    object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]], sparse = TRUE)), 
+    object_size(compactAssay(BRCA[["BRCA_CNASeq-20160128"]])), 
+    object_size(sparseAssay(BRCA[["BRCA_CNASeq-20160128"]])) 
+  ),
+  c(
+    object_size(ingenes),
+    object_size(as.data.frame(ingenes@assays)),
+    object_size(sparseAssay(ingenes, sparse = TRUE)),
+    object_size(compactAssay(ingenes)),
+    object_size(sparseAssay(ingenes))
+  ),
+  c(
+    object_size(BRCA[["BRCA_Mutation-20160128"]]),
+    object_size(as.data.frame(BRCA[["BRCA_Mutation-20160128"]]@assays)),
+    NA_character_,
+    object_size(compactAssay(BRCA[["BRCA_Mutation-20160128"]])),
+    object_size(sparseAssay(BRCA[["BRCA_Mutation-20160128"]]))
+  ),
+  c(
+    object_size(mingenes),
+    object_size(as.data.frame(mingenes@assays)),
+    NA_character_,
+    object_size(compactAssay(mingenes)),
+    object_size(sparseAssay(mingenes))
+  )
+), nrow = 4, byrow = TRUE)
+tdata <- as.data.frame(tdata)
+alldf <-cbind.data.frame(adata, tdata)
+colnames(alldf) <- colnames
+knitr::kable(alldf, "pipe")
+```
