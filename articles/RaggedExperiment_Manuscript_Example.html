@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RaggedExperiment: A Use Case • RaggedExperiment.SoftNote</title>
+<title>RaggedExperiment: Object Size Comparisons • RaggedExperiment.SoftNote</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="RaggedExperiment: A Use Case">
+<script src="../pkgdown.js"></script><meta property="og:title" content="RaggedExperiment: Object Size Comparisons">
 <meta property="og:description" content="RaggedExperiment.SoftNote">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -50,10 +50,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/RaggedExperiment_Manuscript_Example.html">RaggedExperiment: A Use Case</a>
+      <a href="../articles/RaggedExperiment_Manuscript_Example.html">RaggedExperiment: Object Size Comparisons</a>
     </li>
     <li>
-      <a href="../articles/RaggedExperiment_Manuscript_qReduceAssay.html">qReduceAssay BRCA</a>
+      <a href="../articles/RaggedExperiment_Manuscript_qReduceAssay.html">qReduceAssay on BRCA with RaggedExperiment</a>
     </li>
   </ul>
 </li>
@@ -71,7 +71,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>RaggedExperiment: A Use Case</h1>
+      <h1 data-toc-skip>RaggedExperiment: Object Size Comparisons</h1>
                         <h4 data-toc-skip class="author">Waldron
 Lab</h4>
             
@@ -350,67 +350,67 @@ seqlevels…<a class="anchor" aria-label="anchor" href="#it-looks-like-the-order
 <div class="section level2">
 <h2 id="table-of-object-sizes-by-data-type-and-source">Table of object sizes by data type and source<a class="anchor" aria-label="anchor" href="#table-of-object-sizes-by-data-type-and-source"></a>
 </h2>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="11%">
-<col width="6%">
-<col width="9%">
-<col width="14%">
-<col width="10%">
+<col width="12%">
+<col width="15%">
+<col width="7%">
 <col width="13%">
-<col width="20%">
-<col width="14%">
+<col width="10%">
+<col width="10%">
+<col width="17%">
+<col width="12%">
 </colgroup>
 <thead><tr class="header">
-<th>Data Source</th>
-<th>Assay</th>
-<th>Data Type</th>
-<th>RaggedExperiment</th>
-<th>as.data.frame</th>
-<th>sparse Matrix</th>
-<th>matrix (reduced rows)</th>
-<th>matrix (sparse)</th>
+<th align="left">Data Source</th>
+<th align="left">Assay</th>
+<th align="left">Data Type</th>
+<th align="left">RaggedExperiment</th>
+<th align="left">as.data.frame</th>
+<th align="left">sparse Matrix</th>
+<th align="left">matrix (reduced rows)</th>
+<th align="left">matrix (sparse)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>curatedTCGAData</td>
-<td>CNASeq</td>
-<td>numeric</td>
-<td>0.2 MB</td>
-<td>0.3 MB</td>
-<td>0.3 MB</td>
-<td>1 MB</td>
-<td>1.9 MB</td>
+<td align="left">curatedTCGAData</td>
+<td align="left">CNASeq</td>
+<td align="left">numeric</td>
+<td align="left">0.2 MB</td>
+<td align="left">0.3 MB</td>
+<td align="left">0.3 MB</td>
+<td align="left">1 MB</td>
+<td align="left">1.9 MB</td>
 </tr>
 <tr class="even">
-<td>curatedTCGAData</td>
-<td>CNASeq (in genes)</td>
-<td>numeric</td>
-<td>0.2 MB</td>
-<td>0.2 MB</td>
-<td>0.3 MB</td>
-<td>0.9 MB</td>
-<td>1.7 MB</td>
+<td align="left">curatedTCGAData</td>
+<td align="left">CNASeq (in genes)</td>
+<td align="left">numeric</td>
+<td align="left">0.2 MB</td>
+<td align="left">0.2 MB</td>
+<td align="left">0.3 MB</td>
+<td align="left">0.9 MB</td>
+<td align="left">1.7 MB</td>
 </tr>
 <tr class="odd">
-<td>curatedTCGAData</td>
-<td>Mutation</td>
-<td>character</td>
-<td>70.6 MB</td>
-<td>71.8 MB</td>
-<td>NA</td>
-<td>680.3 MB</td>
-<td>726.2 MB</td>
+<td align="left">curatedTCGAData</td>
+<td align="left">Mutation</td>
+<td align="left">character</td>
+<td align="left">70.6 MB</td>
+<td align="left">71.8 MB</td>
+<td align="left">NA</td>
+<td align="left">680.3 MB</td>
+<td align="left">726.2 MB</td>
 </tr>
 <tr class="even">
-<td>curatedTCGAData</td>
-<td>Mutation (in genes)</td>
-<td>character</td>
-<td>37.6 MB</td>
-<td>38.1 MB</td>
-<td>NA</td>
-<td>351.3 MB</td>
-<td>375.5 MB</td>
+<td align="left">curatedTCGAData</td>
+<td align="left">Mutation (in genes)</td>
+<td align="left">character</td>
+<td align="left">37.6 MB</td>
+<td align="left">38.1 MB</td>
+<td align="left">NA</td>
+<td align="left">351.3 MB</td>
+<td align="left">375.5 MB</td>
 </tr>
 </tbody>
 </table>
