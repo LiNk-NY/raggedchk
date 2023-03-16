@@ -1,58 +1,84 @@
 ---
-title: "RaggedExperiment Demos"
-author: "Vincent J. Carey, stvjc at channing.harvard.edu"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
-vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{RaggedExperiment Demos}
-  %\VignetteEncoding{UTF-8}
-output:
-  BiocStyle::html_document:
-    highlight: pygments
-    number_sections: yes
-    theme: united
-    toc: yes
+title: "RaggedExperiment Use Case"
+output: github_document
 ---
 
-```{r getpks,echo=FALSE, results="hide"}
-suppressPackageStartupMessages({
-  library(curatedTCGAData)
-  library(TCGAutils)
-  library(BiocParallel)
-  library(survival)
-})
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%",
+  echo = TRUE,
+  cache = TRUE
+)
+```
+
+This repository provides reproducible examples and tables shown in the
+"RaggedExperiment: the missing link between genomic ranges and matrices in
+Bioconductor" manuscript. Below is an example use case provided by
+[Vincent J. Carey](mailto:stvjc@channing.harvard.edu). See the Articles section
+to see other use cases and table code.
+
+# Installation
+
+```{r,eval=FALSE}
+if (!requireNamespace("RaggedExperiment", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("RaggedExperiment")
+```
+
+# Package Load
+
+```{r getpkgs,include=TRUE,results="hide",message=FALSE,warning=FALSE}
+library(curatedTCGAData)
+library(TCGAutils)
+library(BiocParallel)
+library(survival)
+library(RaggedExperiment)
 ```
 
 # Enumerate mutations by symbol in BRCA, couple to overall survival
 
-```{r cache=TRUE}
+```{r}
 suppressMessages({
-bmut = curatedTCGAData("BRCA", "Mutation", dry.run=FALSE, version="2.0.1")
+  bmut <- curatedTCGAData("BRCA", "Mutation", dry.run=FALSE, version="2.0.1")
 })
 sampleTables(bmut)
 ```
 
 ## Filter only for primary solid tumors (code 01)
 
-```{r cache=TRUE}
+```{r}
 bmut.srv <- TCGAprimaryTumors(bmut)
 sampleTables(bmut.srv)
 ```
 
+## Extract RaggedExperiment from MultiAssayExperiment
+
+```{r}
+rgmut <- bmut.srv[["BRCA_Mutation-20160128"]]
+```
+
 ## Check for replicates
 
-```{r cache=TRUE}
+```{r}
 anyReplicated(bmut.srv)
 
 ## Obtain names of replicate samples by colData rowname
 replicates <- Filter(length,
-    lapply(replicated(bmut.srv)[[1]], function(x) colnames(bmut.srv[[1]])[x])
+    lapply(
+      replicated(bmut.srv)[["BRCA_Mutation-20160128"]],
+      function(x) {
+        colnames(rgmut)[x]
+      }
+    )
 )
 ```
 
 ## Total number of patients with replicates
 
-```{r cache=TRUE}
+```{r}
 sum(sapply(replicated(bmut.srv), any))
 ## OR
 length(replicates)
@@ -60,51 +86,55 @@ length(replicates)
 
 ## Remove replicate observations
 
-```{r cache=TRUE}
+```{r}
 bmut.surv <- bmut.srv[,
     list("BRCA_Mutation-20160128" =
-        !colnames(bmut.srv)[[1]] %in% unlist(sapply(replicates, tail, -1)))
+        !colnames(rgmut) %in% unlist(sapply(replicates, tail, -1)))
 ]
 stopifnot(!anyReplicated(bmut.surv))
 ```
 
 ## See mutation classifications
 
-```{r cache=TRUE}
-table(mcols(bmut.surv[[1]])$Variant_Classification)
+```{r}
+ragex <- bmut.surv[["BRCA_Mutation-20160128"]]
+table(mcols(ragex)$Variant_Classification)
 ```
 
 ## Select only non-silent mutations
 
-```{r cache=TRUE}
+```{r}
 ## mcolsFilter (?)
-ragex <- bmut.surv[[1]]
-ragex <- ragex[mcols(bmut.surv[[1]])$Variant_Classification != "Silent", ]
+ragex <- ragex[mcols(ragex)$Variant_Classification != "Silent",  ]
 table(mcols(ragex)$Variant_Classification)
-bmut[[1]] <- ragex
+bmut[["BRCA_Mutation-20160128"]] <- ragex
 ```
 
 ## Set up survival time
 
-```{r cache=TRUE}
+```{r}
 colData(bmut.surv) <- colData(bmut)[!is.na(bmut$OS.Time), ]
 osurv <- Surv(bmut.surv$OS.Time/365.25, bmut.surv$OS.event)
 ```
 
 ## Obtain Hugo_Symbols for each sample
 
-```{r cache=TRUE}
-system.time(
-  mutsyms <- as(
-    lapply(as(bmut.surv[[1L]], "GRangesList"), function(x) x$Hugo_Symbol),
-  "CharacterList")
-)
+```{r}
+system.time({
+    mutsyms <- as(
+        lapply(
+          as(bmut.surv[["BRCA_Mutation-20160128"]], "GRangesList"),
+          function(x) x$Hugo_Symbol
+        ),
+        "CharacterList"
+    )
+})
 mutsyms
 ```
 
 ## Sample mutations tally
 
-```{r cache=TRUE}
+```{r}
 system.time({
   print(table(sapply(mutsyms, function(x) sum(duplicated(x)))))
 })
@@ -130,6 +160,7 @@ gstrat <- function(sym="TTN", mutlist, survdat) {
   hassym <- unlist(list(sym) %in% mutlist)
   plot(survfit(survdat~hassym), main=sym, lty=1:2, xlab="Years")
 }
+
 gstrat("TTN", mutsyms, osurv)
 gstrat("TP53", mutsyms, osurv)
 ```
@@ -137,7 +168,7 @@ gstrat("TP53", mutsyms, osurv)
 ## Frequencies
 
 ```{r dofr}
-commut <- tail(sort(table(unlist(mutsyms))), 30)
+commut <- head(sort(table(unlist(mutsyms)), decreasing = TRUE), 30)
 commut
 ```
 
@@ -151,9 +182,9 @@ hist(log(sapply(mutsyms,length)), main="Log mutation count per tumor")
 
 ```{r lkco}
 hasmut <- function(sym="TP53", mutlist) {
- sapply(mutlist, function(x) sym %in% x)
+    sapply(mutlist, function(x) sym %in% x)
 }
-table( hasmut("TP53", mutsyms), hasmut("PIK3CA", mutsyms) )
+table(hasmut("TP53", mutsyms), hasmut("PIK3CA", mutsyms))
 ```
 
 ## Assemble pairs
@@ -180,7 +211,7 @@ plot(survfit(osurv~chk[,chkp.inds[which(chisqs>5)]]), lty=1:2, main=paste(cpr, c
 
 # Using domain classification of mutations
 
-```{r lkdom, cache=TRUE}
+```{r lkdom}
 dom <- assay(bmut.surv[[1L]], "domain_WU")
 length(grep("Znf", na.omit(as.character(dom)))) # frequently noted
 register(MulticoreParam(parallel::detectCores() - 1L))
