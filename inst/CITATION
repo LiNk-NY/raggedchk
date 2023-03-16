@@ -1,0 +1,22 @@
+citHeader("To cite RaggedExperiment in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "RaggedExperiment: the missing link between genomic ranges and matrices in Bioconductor",
+  author   = personList(
+    as.person("Marcel Ramos"),
+    as.person("Martin Morgan"),
+    as.person("Ludwig Geistlinger"),
+    as.person("Vincent J. Carey"),
+    as.person("Levi Waldron")
+  ),
+  journal  = "Bioinformatics",
+  year     = "2023",
+  textVersion =
+  paste(
+    "Marcel Ramos et al.",
+    "RaggedExperiment: the missing link between genomic ranges and matrices in Bioconductor",
+    "Bioinformatics, 2023.",
+    "DOI: TDB"
+  )
+)
