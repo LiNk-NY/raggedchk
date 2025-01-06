@@ -30,7 +30,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Cache R packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /usr/local/lib/R/site-library
           key: ${{ runner.os }}-r-${{ env.version-name }}-${{ hashFiles('.github/depends.Rds') }}
